@@ -1,0 +1,16 @@
+{
+    "name": "wp-post-order",
+    "description": "Allow to order posts by drag and drop.",
+    "homepage": "https://rue-de-la-vieille.fr/",
+    "type": "wordpress-muplugin",
+    "license": "private",
+	"authors": [
+		{
+			"name"    : "Jérôme Mulsant",
+			"homepage": "https://rue-de-la-vieille.fr/"
+		}
+	],
+	"require": {
+          "composer/installers": "~1.0"
+	}
+}
