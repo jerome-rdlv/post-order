@@ -1,5 +1,5 @@
 {
-    "name": "wp-post-order",
+    "name": "post-order",
     "description": "Allow to order posts by drag and drop.",
     "homepage": "https://rue-de-la-vieille.fr/",
     "type": "wordpress-muplugin",
