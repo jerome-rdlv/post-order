@@ -1,6 +1,6 @@
 <?php
 
-add_action('wp_loaded', array(RdlvOrder::getInstance(), 'init'));
+add_action('wp_loaded', [RdlvOrder::getInstance(), 'init']);
 
 class RdlvOrder
 {
@@ -16,15 +16,24 @@ class RdlvOrder
 
     public function init()
     {
-        add_action('pre_get_posts', array($this, 'postsOrder'));
-        add_action('pre_get_terms', array($this, 'termsOrder'));
-        add_action('wp_ajax_update_order', array($this, 'updateOrder'));
-        add_filter('edit_posts_per_page', array($this, 'adminPostPerPage'), 10, 2);
+        add_action('pre_get_posts', [$this, 'postsOrder']);
+        add_action('pre_get_terms', [$this, 'termsOrder']);
+        add_action('wp_ajax_update_order', [$this, 'updateOrder']);
+        add_filter('edit_posts_per_page', [$this, 'adminPostPerPage'], 10, 2);
 
-        wp_register_script('rdlv-order-main', plugin_dir_url(__FILE__) . '/order.js', array('jquery', 'jquery-ui-sortable'), false, true);
-        add_action('admin_enqueue_scripts', array($this, 'adminEnqueueScripts'));
+        wp_register_script('rdlv-order-main', plugin_dir_url(__FILE__) . '/order.js', ['jquery', 'jquery-ui-sortable'], false, true);
+        add_action('admin_enqueue_scripts', [$this, 'adminEnqueueScripts']);
 
-        add_action('admin_notices', array($this, 'adminNotices'));
+        add_action('admin_notices', [$this, 'adminNotices']);
+
+        // add meta to be able to order
+        $taxos = apply_filters('ordered_taxos', []);
+        foreach ($taxos as $taxo) {
+            add_action('created_'. $taxo, function ($term_id, $tt_id) {
+                add_term_meta($term_id, 'term_order', 0);
+            }, 10, 2);
+        }
+
     }
 
     public function adminNotices()
@@ -34,13 +43,13 @@ class RdlvOrder
 
         if ($pagenow === 'edit-tags.php') {
             global $taxonomy;
-            if (array_search($taxonomy, apply_filters('ordered_taxos', array())) !== false) {
+            if (array_search($taxonomy, apply_filters('ordered_taxos', [])) !== false) {
                 echo $notice;
             }
         }
         if ($pagenow === 'edit.php') {
             global $post_type;
-            if (array_search($post_type , apply_filters('ordered_types', array())) !== false) {
+            if (array_search($post_type , apply_filters('ordered_types', [])) !== false) {
                 echo $notice;
             }
         }
@@ -53,17 +62,17 @@ class RdlvOrder
         $types = array_merge(
             array_map(function ($item) {
                 return 'post-type-'. $item;
-            }, apply_filters('ordered_types', array())),
+            }, apply_filters('ordered_types', [])),
             array_map(function ($item) {
                 return 'taxonomy-'. $item;
-            }, apply_filters('ordered_taxos', array()))
+            }, apply_filters('ordered_taxos', []))
         );
 
-        wp_localize_script('rdlv-order-main', 'rdlv_order', array(
+        wp_localize_script('rdlv-order-main', 'rdlv_order', [
             'update_order_url' => admin_url('admin-ajax.php'),
             'update_order_nonce' => wp_create_nonce('update_order_nonce'),
             'types' => $types
-        ));
+        ]);
     }
 
     public function updateOrder()
@@ -93,7 +102,7 @@ class RdlvOrder
 
     public function adminPostPerPage($posts_per_page, $post_type)
     {
-        if (in_array($post_type, apply_filters('ordered_types', array()))) {
+        if (in_array($post_type, apply_filters('ordered_types', []))) {
             return -1;
         }
         return $posts_per_page;
@@ -101,7 +110,7 @@ class RdlvOrder
 
     public function postsOrder(WP_Query $query)
     {
-        $types = apply_filters('ordered_types', array());
+        $types = apply_filters('ordered_types', []);
         if ($query->is_post_type_archive($types) || in_array($query->get('post_type'), $types)) {
             $query->set('orderby', 'menu_order');
             $query->set('order', 'ASC');
@@ -110,18 +119,22 @@ class RdlvOrder
 
     public function termsOrder(WP_Term_Query $query)
     {
-        if (array_intersect(apply_filters('ordered_taxos', array()), $query->query_vars['taxonomy'])) {
+        if (array_intersect(apply_filters('ordered_taxos', []), $query->query_vars['taxonomy'])) {
             $query->query_vars['orderby'] = 'meta_value_num';
             $query->query_vars['order'] = 'ASC';
-            $query->query_vars['meta_key'] = 'term_order';
-            $query->meta_query = new WP_Meta_Query(array(
-                array(
+            $query->meta_query = new WP_Meta_Query([
+                'relation' => 'OR',
+                [
                     'key' => 'term_order',
-                    'value' => 0,
-                    'compare' => 'GREATER'
-                )
-            ));
-//            $query->query_vars['meta_value'] = '1';
+                    'type' => 'NUMERIC',
+                    'compare' => 'EXISTS'
+                ],
+                [
+                    'key' => 'term_order',
+                    'type' => 'NUMERIC',
+                    'compare' => 'NOT EXISTS'
+                ],
+            ]);
         }
     }
 }

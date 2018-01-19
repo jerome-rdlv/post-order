@@ -39,6 +39,10 @@
 						sort.containment[3] = $containment.offset().top + $containment.height() - ui.helper.height();
 					},
 					update: function (e, ui) {
+						ui.item.css({
+							'position': '',
+							'display': ''
+						});
 						var order = [];
 						ui.item.closest('tbody').find('input[name="post[]"],input[name="delete_tags[]"]').each(function () {
 							order.push(this.value);
