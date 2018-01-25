@@ -13,12 +13,14 @@ class RdlvOrder
         }
         return self::$instance;
     }
+    
+    const AJAX_ACTION = 'rdlv_update_order';
 
     public function init()
     {
         add_action('pre_get_posts', [$this, 'postsOrder']);
         add_action('pre_get_terms', [$this, 'termsOrder']);
-        add_action('wp_ajax_update_order', [$this, 'updateOrder']);
+        add_action('wp_ajax_' . self::AJAX_ACTION, [$this, 'updateOrder']);
         add_filter('edit_posts_per_page', [$this, 'adminPostPerPage'], 10, 2);
 
         wp_register_script('rdlv-order-main', plugin_dir_url(__FILE__) . '/order.js', ['jquery', 'jquery-ui-sortable'], false, true);
@@ -69,6 +71,7 @@ class RdlvOrder
         );
 
         wp_localize_script('rdlv-order-main', 'rdlv_order', [
+            'action' => self::AJAX_ACTION,
             'update_order_url' => admin_url('admin-ajax.php'),
             'update_order_nonce' => wp_create_nonce('update_order_nonce'),
             'types' => $types
@@ -119,7 +122,8 @@ class RdlvOrder
 
     public function termsOrder(WP_Term_Query $query)
     {
-        if (array_intersect(apply_filters('ordered_taxos', []), $query->query_vars['taxonomy'])) {
+        $taxo = $query->query_vars['taxonomy'];
+        if (is_array($taxo) && array_intersect(apply_filters('ordered_taxos', []), $taxo)) {
             $query->query_vars['orderby'] = 'meta_value_num';
             $query->query_vars['order'] = 'ASC';
             $query->meta_query = new WP_Meta_Query([

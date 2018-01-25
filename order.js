@@ -48,7 +48,7 @@
 							order.push(this.value);
 						});
 						var data = {
-                            action: 'update_order',
+                            action: rdlv_order.action,
                             nonce: rdlv_order.update_order_nonce,
                             order: order
                         };
