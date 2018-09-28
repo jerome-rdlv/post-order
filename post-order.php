@@ -114,7 +114,7 @@ class RdlvOrder
     public function postsOrder(WP_Query $query)
     {
         $types = apply_filters('ordered_types', []);
-        if ($query->is_post_type_archive($types) || in_array($query->get('post_type'), $types)) {
+        if ($query->is_main_query() && ($query->is_post_type_archive($types) || in_array($query->get('post_type'), $types))) {
             $query->set('orderby', 'menu_order');
             $query->set('order', 'ASC');
         }
