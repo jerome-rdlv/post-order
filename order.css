@@ -1,0 +1,19 @@
+.wp-list-table.ui-sortable td.handle {
+    background: transparent no-repeat center center;
+    width: 1.5em;
+}
+.wp-list-table.ui-sortable thead td.handle,
+.wp-list-table.ui-sortable tfoot td.handle {
+    background-image: url("data:image/svg+xml,%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2232%22%20viewBox%3D%220%200%2012%2032%22%3E%3Cpath%20d%3D%22M8%2020v6h4l-6%206-6-6h4v-6zM4%2012v-6h-4l6-6%206%206h-4v6z%22%2F%3E%3C%2Fsvg%3E");
+    background-size: auto 19px;
+    opacity: .3;
+}
+.wp-list-table.ui-sortable tbody td.handle {
+    background-image: url("data:image/svg+xml,%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M3.984%2015v-2.016h16.031v2.016h-16.031zM20.016%209v2.016h-16.031v-2.016h16.031z%22%2F%3E%3C%2Fsvg%3E");
+    background-position: center 8px;
+    opacity: .3;
+    cursor: move;
+}
+.wp-list-table.ui-sortable tbody td.handle:hover {
+    opacity: .6;
+}
