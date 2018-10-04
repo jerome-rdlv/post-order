@@ -101,7 +101,6 @@ class RdlvOrder
             exit;
         }
 
-
         if (!empty($_REQUEST['taxonomy'])) {
             if (apply_filters('is_taxonomy_ordered', false, $_REQUEST['taxonomy'])) {
                 foreach ($_REQUEST['order'] as $order => $term_id) {

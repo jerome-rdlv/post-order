@@ -1,9 +1,9 @@
 {
     "name": "post-order",
-    "description": "Allow to order posts by drag and drop.",
-    "homepage": "https://rue-de-la-vieille.fr/",
+    "description": "WordPress plugin to allow to set posts order by drag and drop",
+    "homepage": "https://github.com/jerome-rdlv/post-order",
     "type": "wordpress-muplugin",
-    "license": "private",
+    "license": "MIT",
 	"authors": [
 		{
 			"name"    : "Jérôme Mulsant",

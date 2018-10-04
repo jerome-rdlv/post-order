@@ -7,6 +7,7 @@
         // add drag handle
         $table.find('tr').prepend('<td class="handle"></td>');
         
+        // add drag handle on added rows
         var tbody = $table.find('tbody').get(0);
         var observer = new MutationObserver(function (mutations, observer) {
             for (var i = 0; i < mutations.length; ++i) {
