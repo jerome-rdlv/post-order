@@ -53,7 +53,7 @@ add_filter('is_taxonomy_ordered', function ($is_ordered, $taxonomy) {
 
 When enabled on a post type or taxonomy, two things happen:
 
-1. All main queries for that post type or taxonomy are ordered by `menu_order`
+1. Main queries for that post type are ordered by `menu_order` (or `term_order` for taxonomies)
 2. In admin screen a sort handle appears next to the posts or taxonomy items on the listings:
 
 ![](screenshot.png)
