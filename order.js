@@ -13,7 +13,6 @@
             for (var i = 0; i < mutations.length; ++i) {
                 if (mutations[i].type === 'childList' && mutations[i].target === tbody) {
                     for (var j = 0; j < mutations[i].addedNodes.length; ++j) {
-                        console.log(mutations[i].addedNodes[j]);
                         var $node = $(mutations[i].addedNodes[j]);
                         if (!$node.find('> td.handle').length) {
                             $node.prepend('<td class="handle"></td>');
