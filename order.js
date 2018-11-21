@@ -12,18 +12,21 @@
         var observer = new MutationObserver(function (mutations, observer) {
             for (var i = 0; i < mutations.length; ++i) {
                 if (mutations[i].type === 'childList' && mutations[i].target === tbody) {
-                    console.log('added', mutations[i].addedNodes);
                     for (var j = 0; j < mutations[i].addedNodes.length; ++j) {
-                        $(mutations[i].addedNodes[j]).prepend('<td class="handle"></td>');
+                        console.log(mutations[i].addedNodes[j]);
+                        var $node = $(mutations[i].addedNodes[j]);
+                        if (!$node.find('> td.handle').length) {
+                            $node.prepend('<td class="handle"></td>');
+                        }
                     }
                 }
             }
             if (mutations.type === 'childlist') {
-                console.log('child added', mutations);
+                // console.log('child added', mutations);
             }
         });
         observer.observe(tbody, {
-            childList: true,
+            childList: true
         });
         
         var $containment = $table.find('tbody');
