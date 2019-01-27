@@ -13,7 +13,7 @@ class RdlvOrder
         }
         return self::$instance;
     }
-    
+
     const AJAX_ACTION = 'rdlv_update_order';
 
     public function init()
@@ -63,17 +63,17 @@ class RdlvOrder
 
     public function adminEnqueueScripts()
     {
+        global $current_screen;
         $type = null;
-        
-        if (is_post_type_archive() && apply_filters('is_post_type_ordered', false, get_post_type())) {
-            $type = 'post-type-'. get_post_type();
-        }
-        else {
+
+        if ($current_screen->base = 'edit' && apply_filters('is_post_type_ordered', false, $current_screen->post_type)) {
+            $type = $current_screen->post_type;
+        } else {
             global $wp_list_table;
             if (isset($wp_list_table->screen->taxonomy)) {
                 $taxonomy = $wp_list_table->screen->taxonomy;
                 if (apply_filters('is_taxonomy_ordered', false, $taxonomy)) {
-                    $type = 'taxonomy-'. $taxonomy;
+                    $type = 'taxonomy-' . $taxonomy;
                 }
             }
         }
@@ -83,10 +83,10 @@ class RdlvOrder
             wp_enqueue_style('rdlv-order');
 
             wp_localize_script('rdlv-order', 'rdlv_order', [
-                'action' => self::AJAX_ACTION,
-                'update_order_url' => admin_url('admin-ajax.php'),
+                'action'             => self::AJAX_ACTION,
+                'update_order_url'   => admin_url('admin-ajax.php'),
                 'update_order_nonce' => wp_create_nonce('update_order_nonce'),
-                'type' => $type,
+                'type'               => $type,
             ]);
         }
     }
@@ -107,8 +107,7 @@ class RdlvOrder
                     update_term_meta($term_id, 'term_order', $order);
                 }
             }
-        }
-        elseif (!empty($_REQUEST['post_type'])) {
+        } elseif (!empty($_REQUEST['post_type'])) {
             if (apply_filters('is_post_type_ordered', false, $_REQUEST['post_type'])) {
                 global $wpdb;
                 $query = "UPDATE $wpdb->posts SET menu_order = %d WHERE ID = %d AND post_type = '%s'";
@@ -151,20 +150,20 @@ class RdlvOrder
         if (!$ordered) {
             return;
         }
-        
+
         $query->query_vars['orderby'] = 'meta_value_num';
         $query->query_vars['order'] = 'ASC';
         $query->meta_query = new WP_Meta_Query([
             'relation' => 'OR',
             [
-                'key' => 'term_order',
-                'type' => 'NUMERIC',
-                'compare' => 'EXISTS'
+                'key'     => 'term_order',
+                'type'    => 'NUMERIC',
+                'compare' => 'EXISTS',
             ],
             [
-                'key' => 'term_order',
-                'type' => 'NUMERIC',
-                'compare' => 'NOT EXISTS'
+                'key'     => 'term_order',
+                'type'    => 'NUMERIC',
+                'compare' => 'NOT EXISTS',
             ],
         ]);
     }

@@ -1,8 +1,9 @@
 (function ($, type) {
 
     var $body = $('body');
-    var $table = $('.'+ type +' .wp-list-table');
-    if ($table.find('tbody tr').length > 1) {
+    var $rows = $('.wp-list-table tr.type-'+ type);
+    if ($rows.length) {
+        var $table = $rows.first().closest('table');
         
         // add drag handle
         $table.find('tr').prepend('<td class="handle"></td>');
@@ -20,9 +21,9 @@
                     }
                 }
             }
-            if (mutations.type === 'childlist') {
-                // console.log('child added', mutations);
-            }
+            // if (mutations.type === 'childlist') {
+            //     // console.log('child added', mutations);
+            // }
         });
         observer.observe(tbody, {
             childList: true
