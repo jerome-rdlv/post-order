@@ -1,10 +1,10 @@
+// noinspection JSUnusedLocalSymbols
 (function ($, type) {
 
     var $body = $('body');
-    var $rows = $('.wp-list-table tr.type-'+ type);
-    if ($rows.length) {
-        var $table = $rows.first().closest('table');
-        
+    var $table = $('.wp-list-table');
+    
+    if ($table.length) {
         // add drag handle
         $table.find('tr').prepend('<td class="handle"></td>');
         
@@ -21,9 +21,6 @@
                     }
                 }
             }
-            // if (mutations.type === 'childlist') {
-            //     // console.log('child added', mutations);
-            // }
         });
         observer.observe(tbody, {
             childList: true
