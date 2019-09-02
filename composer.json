@@ -1,5 +1,5 @@
 {
-    "name": "post-order",
+    "name": "jerome-rdlv/post-order",
     "description": "WordPress plugin to allow to set posts order by drag and drop",
     "homepage": "https://github.com/jerome-rdlv/post-order",
     "type": "wordpress-muplugin",
