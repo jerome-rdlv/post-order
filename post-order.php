@@ -1,20 +1,22 @@
 <?php
 
-add_action('wp_loaded', [RdlvOrder::getInstance(), 'init']);
+namespace Rdlv\WordPress\PostOrder;
 
-class RdlvOrder
+use WP_Meta_Query;
+use WP_Post;
+use WP_Query;
+use WP_Term_Query;
+
+new PostOrder();
+
+class PostOrder
 {
-    private static $instance = null;
-
-    public static function getInstance()
-    {
-        if (!self::$instance) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
-
     const AJAX_ACTION = 'rdlv_update_order';
+
+    public function __construct()
+    {
+        add_action('wp_loaded', [$this, 'init']);
+    }
 
     public function init()
     {
@@ -23,8 +25,14 @@ class RdlvOrder
         add_action('wp_ajax_' . self::AJAX_ACTION, [$this, 'updateOrder']);
         add_filter('edit_posts_per_page', [$this, 'adminPostPerPage'], 10, 2);
 
-        wp_register_script('rdlv-order', plugin_dir_url(__FILE__) . '/order.js', ['jquery', 'jquery-ui-sortable'], false, true);
-        wp_register_style('rdlv-order', plugin_dir_url(__FILE__) . '/order.css');
+        add_filter('get_previous_post_where', [$this, 'adjacentPostWhere'], 9, 5);
+        add_filter('get_next_post_where', [$this, 'adjacentPostWhere'], 9, 5);
+        add_filter('get_previous_post_sort', [$this, 'adjacentPostSort'], 10, 3);
+        add_filter('get_next_post_sort', [$this, 'adjacentPostSort'], 10, 3);
+
+        $pluginUrl = plugin_dir_url(__FILE__);
+        wp_register_script('rdlv-order', $pluginUrl . '/order.js', ['jquery', 'jquery-ui-sortable'], false, true);
+        wp_register_style('rdlv-order', $pluginUrl . '/order.css');
         add_action('admin_enqueue_scripts', [$this, 'adminEnqueueScripts']);
 
         // useless since sort handle has been added
@@ -39,7 +47,6 @@ class RdlvOrder
                 });
             }
         }
-
     }
 
     public function adminNotices()
@@ -66,7 +73,8 @@ class RdlvOrder
         global $current_screen;
         $type = null;
 
-        if ($current_screen->base = 'edit' && apply_filters('is_post_type_ordered', false, $current_screen->post_type)) {
+        if ($current_screen->base = 'edit' && apply_filters('is_post_type_ordered', false,
+                                                            $current_screen->post_type)) {
             $type = $current_screen->post_type;
         } else {
             global $wp_list_table;
@@ -138,6 +146,31 @@ class RdlvOrder
         $query->set('order', 'ASC');
     }
 
+    public function adjacentPostSort(string $orderBy, WP_Post $post, string $order): string
+    {
+        if (!apply_filters('is_post_type_ordered', false, $post->post_type)) {
+            return $orderBy;
+        }
+        return "ORDER BY p.menu_order $order LIMIT 1";
+    }
+
+    public function adjacentPostWhere(string $where, $sameTerm, $excluded, $taxo, WP_Post $post): string
+    {
+        if (!apply_filters('is_post_type_ordered', false, $post->post_type)) {
+            return $where;
+        }
+        if (!preg_match('/ p.post_date (<|>) /', $where, $matches)) {
+            return $where;
+        }
+
+        return sprintf(
+            'WHERE p.post_type = "%s" AND p.menu_order %s %s',
+            $post->post_type,
+            $matches[1],
+            $post->menu_order
+        );
+    }
+
     public function termsOrder(WP_Term_Query $query)
     {
         $ordered = false;
@@ -153,18 +186,20 @@ class RdlvOrder
 
         $query->query_vars['orderby'] = 'meta_value_num';
         $query->query_vars['order'] = 'ASC';
-        $query->meta_query = new WP_Meta_Query([
-            'relation' => 'OR',
+        $query->meta_query = new WP_Meta_Query(
             [
-                'key'     => 'term_order',
-                'type'    => 'NUMERIC',
-                'compare' => 'EXISTS',
-            ],
-            [
-                'key'     => 'term_order',
-                'type'    => 'NUMERIC',
-                'compare' => 'NOT EXISTS',
-            ],
-        ]);
+                'relation' => 'OR',
+                [
+                    'key'     => 'term_order',
+                    'type'    => 'NUMERIC',
+                    'compare' => 'EXISTS',
+                ],
+                [
+                    'key'     => 'term_order',
+                    'type'    => 'NUMERIC',
+                    'compare' => 'NOT EXISTS',
+                ],
+            ]
+        );
     }
 }
