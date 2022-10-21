@@ -4,8 +4,10 @@ namespace Rdlv\WordPress\PostOrder;
 
 use WP_Meta_Query;
 use WP_Post;
+use WP_Posts_List_Table;
 use WP_Query;
 use WP_Term_Query;
+use WP_Terms_List_Table;
 
 new PostOrder();
 
@@ -70,31 +72,30 @@ class PostOrder
 
     public function adminEnqueueScripts()
     {
-        global $current_screen;
-        $type = null;
+        global $current_screen, $wp_list_table;
+       
+        $kinds = [
+            WP_Posts_List_Table::class => 'post_type',
+            WP_Terms_List_Table::class => 'taxonomy',
+        ];
 
-        if ($current_screen->base = 'edit' && apply_filters('is_post_type_ordered', false,
-                                                            $current_screen->post_type)) {
-            $type = $current_screen->post_type;
-        } else {
-            global $wp_list_table;
-            if (isset($wp_list_table->screen->taxonomy)) {
-                $taxonomy = $wp_list_table->screen->taxonomy;
-                if (apply_filters('is_taxonomy_ordered', false, $taxonomy)) {
-                    $type = 'taxonomy-' . $taxonomy;
-                }
-            }
+        if (!($kind = $kinds[get_class($wp_list_table)] ?? null)) {
+            return;
         }
 
-        if ($type) {
+        if (!($slug = $current_screen->{$kind})) {
+            return;
+        }
+
+        if ($type = apply_filters(sprintf('is_%s_ordered', $kind), false, $slug) ? $slug : null) {
             wp_enqueue_script('rdlv-order');
             wp_enqueue_style('rdlv-order');
 
             wp_localize_script('rdlv-order', 'rdlv_order', [
-                'action'             => self::AJAX_ACTION,
-                'update_order_url'   => admin_url('admin-ajax.php'),
+                'action' => self::AJAX_ACTION,
+                'update_order_url' => admin_url('admin-ajax.php'),
                 'update_order_nonce' => wp_create_nonce('update_order_nonce'),
-                'type'               => $type,
+                'type' => $type,
             ]);
         }
     }
@@ -190,13 +191,13 @@ class PostOrder
             [
                 'relation' => 'OR',
                 [
-                    'key'     => 'term_order',
-                    'type'    => 'NUMERIC',
+                    'key' => 'term_order',
+                    'type' => 'NUMERIC',
                     'compare' => 'EXISTS',
                 ],
                 [
-                    'key'     => 'term_order',
-                    'type'    => 'NUMERIC',
+                    'key' => 'term_order',
+                    'type' => 'NUMERIC',
                     'compare' => 'NOT EXISTS',
                 ],
             ]
