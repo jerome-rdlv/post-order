@@ -73,13 +73,17 @@ class PostOrder
     public function adminEnqueueScripts()
     {
         global $current_screen, $wp_list_table;
+        
+        if (!$wp_list_table) {
+            return;
+        }
        
         $kinds = [
             WP_Posts_List_Table::class => 'post_type',
             WP_Terms_List_Table::class => 'taxonomy',
         ];
 
-        if (!($kind = $kinds[get_class($wp_list_table)] ?? null)) {
+        if (!($kind = ($kinds[get_class($wp_list_table)] ?? null))) {
             return;
         }
 
