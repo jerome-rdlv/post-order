@@ -179,7 +179,7 @@ class PostOrder
     public function termsOrder(WP_Term_Query $query)
     {
         $ordered = false;
-        foreach ($query->query_vars['taxonomy'] as $taxo) {
+        foreach ($query->query_vars['taxonomy'] ?: [] as $taxo) {
             if (apply_filters('is_taxonomy_ordered', false, $taxo)) {
                 $ordered = true;
                 break;
