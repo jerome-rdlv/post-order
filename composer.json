@@ -4,13 +4,10 @@
     "homepage": "https://github.com/jerome-rdlv/post-order",
     "type": "wordpress-muplugin",
     "license": "MIT",
-	"authors": [
-		{
-			"name"    : "Jérôme Mulsant",
-			"homepage": "https://rue-de-la-vieille.fr/"
-		}
-	],
-	"require": {
-          "composer/installers": "~1.0"
-	}
+    "authors": [
+        {
+            "name": "Jérôme Mulsant",
+            "homepage": "https://rue-de-la-vieille.fr/"
+        }
+    ]
 }
