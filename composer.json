@@ -9,5 +9,13 @@
             "name": "Jérôme Mulsant",
             "homepage": "https://rue-de-la-vieille.fr/"
         }
-    ]
+    ],
+    "require": {
+        "composer/installers": "^1.0 || ^2.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true
+        }
+    }
 }
